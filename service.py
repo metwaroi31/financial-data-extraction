@@ -8,7 +8,7 @@ def get_low_after_entry_agg(aggs, entry_timestamp):
         timestamp_of_agg = agg.timestamp
         low_price_of_agg = agg.low
         # from open to close time respect to EST
-        if low_price_of_agg < smallest_price and entry_timestamp > agg.timestamp:
+        if low_price_of_agg < smallest_price and entry_timestamp < agg.timestamp:
             smallest_price = low_price_of_agg
             return_timestamp = timestamp_of_agg
     return smallest_price, return_timestamp
@@ -19,6 +19,14 @@ def get_open_price(daily_agg):
 def get_close_price(daily_agg):
     return daily_agg.close
 
+def get_high_of_day(daily_agg):
+    return daily_agg.high
+
+def get_low_of_day(daily_agg):
+    return daily_agg.low
+
+def get_volume_of_day(daily_agg):
+    return daily_agg.volume
 
 # def get_low_time_after_entry():
 #     return

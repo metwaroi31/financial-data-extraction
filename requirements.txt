@@ -1,1 +1,2 @@
 polygon-api-client
+pandas

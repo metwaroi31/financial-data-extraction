@@ -20,5 +20,5 @@ def get_daily_open_close(ticker, date, adjusted=False):
         "adjusted" : adjusted
     }    
     client = RESTClient(API_KEY)
-    aggs = client.get_daily_open_close_agg(**params)    
-    return aggs
+    agg = client.get_daily_open_close_agg(**params)    
+    return agg
