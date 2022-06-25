@@ -22,3 +22,13 @@ def get_daily_open_close(ticker, date, adjusted=False):
     client = RESTClient(API_KEY)
     agg = client.get_daily_open_close_agg(**params)    
     return agg
+
+def get_previous_close_agg(ticker, adjusted=False):
+    params = {
+        "ticker" : ticker
+    }    
+    client = RESTClient(API_KEY)
+    agg = client.get_previous_close_agg(**params)    
+    return agg
+
+# def get_
