@@ -63,7 +63,7 @@ def get_low_time(aggs, daily_agg):
 
 def get_premarket_volume(daily_agg):
     # preMarket = 
-    return daily_agg.preMarket
+    return daily_agg.pre_market
 
 def get_volume_of_day(daily_agg):
     return daily_agg.volume

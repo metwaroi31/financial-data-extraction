@@ -40,7 +40,7 @@ output_df = {
 for index, row in data.iterrows():
     datetime_input = row[0]
     ticker_input = row[1]
-
+    entry_input = row[2]
     # entry_input
     input_format = "%H:%M:%S %m/%d/%Y"
     timestamp = convert_datetime_to_timestamp(datetime_input, input_format)
@@ -70,9 +70,9 @@ for index, row in data.iterrows():
     entry_agg = get_low_after_entry_agg(aggs, timestamp)
     open_price = get_open_price(daily_agg)
     close_price = get_close_price(daily_agg)
-    previous_close_high = get_previous_close_high(previous_close_agg)
-    previous_close_low = get_previous_close_low(previous_close_agg)
-    previous_close_volume = get_previous_close_volume(previous_close_agg)
+    previous_close_high = get_previous_close_high(previous_close_agg[0])
+    previous_close_low = get_previous_close_low(previous_close_agg[0])
+    previous_close_volume = get_previous_close_volume(previous_close_agg[0])
     high_of_day = get_high_of_day(daily_agg)
     low_of_day = get_low_of_day(daily_agg)
     after_premarket_volumes = get_volumes_after_premarket(aggs, daily_agg)
@@ -91,15 +91,15 @@ for index, row in data.iterrows():
     # output_df['premarket_volume'].append(premarket_volume)
     output_df['premarket_high'].append(premarket_volume)
 
-    output_df['premarket_low_after_high'].append(after_premarket_volumes[0])
-    output_df['volume_at_931'].append(after_premarket_volumes[1])
-    output_df['volume_at_933'].append(after_premarket_volumes[2])
-    output_df['volume_at_935'].append(after_premarket_volumes[3])
-    output_df['volume_at_940'].append(after_premarket_volumes[4])
-    output_df['volume_at_1000'].append(after_premarket_volumes[5])
-    output_df['volume_at_1030'].append(after_premarket_volumes[6])
-    output_df['volume_at_1200'].append(after_premarket_volumes[7])
-    output_df['volume_at_1400'].append(after_premarket_volumes[8])
+    # output_df['premarket_low_after_high'].append(after_premarket_volumes[0])
+    output_df['volume_at_931'].append(after_premarket_volumes[0])
+    output_df['volume_at_933'].append(after_premarket_volumes[1])
+    output_df['volume_at_935'].append(after_premarket_volumes[2])
+    output_df['volume_at_940'].append(after_premarket_volumes[3])
+    output_df['volume_at_1000'].append(after_premarket_volumes[4])
+    output_df['volume_at_1030'].append(after_premarket_volumes[5])
+    output_df['volume_at_1200'].append(after_premarket_volumes[6])
+    output_df['volume_at_1400'].append(after_premarket_volumes[7])
     # output_df['day_of_the_week'].append(get_close_price(daily_agg))
 
 write_file_csv(output_df, './output.csv')
@@ -126,5 +126,6 @@ params_previous = {
 }
 previous_close_agg = get_previous_close_agg(**params_previous)
 print (previous_close_agg)
+print (daily_agg)
 print (get_open_price(daily_agg))
 print (get_close_price(daily_agg))
