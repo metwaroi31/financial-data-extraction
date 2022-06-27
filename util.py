@@ -7,9 +7,9 @@ def convert_datetime_to_timestamp(datetime_string, input_format):
 def convert_timestamp_to_datetime(timestamp):
       return datetime.fromtimestamp(timestamp)
 
-def add_time(timestamp, hours=0, minutes=0, seconds=0):
+def add_time(timestamp, days=0, hours=0, minutes=0, seconds=0):
       datetime_object = convert_timestamp_to_datetime(timestamp)
-      datetime.timedelta(hours=hours, minutes=minutes, seconds=seconds)
+      datetime.timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
       new_time = date_and_time + time_change
       return new_time
 

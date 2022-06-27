@@ -1,5 +1,3 @@
-from polygon import RESTClient
-import datetime
 from util import get_day_of_week
 
 def get_low_after_entry_agg(aggs, entry_timestamp):
@@ -77,6 +75,17 @@ def get_previous_close_low(previous_close_agg):
 def get_previous_close_volume(previous_close_agg):
     return previous_close_agg.volume
 
+def get_weekday_string(weekday):
+    switcher = {
+        0: "Monday",
+        1: "Tuesday",
+        2: "Wednesday",
+        3: "Thursday",
+        4: "Friday",
+        5: "Saturday",
+        6: "Sunday"
+    }
+    return switcher.get(weekday, "null")
 # def get_low_time_after_entry():
 #     return
 
