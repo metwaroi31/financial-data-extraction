@@ -5,12 +5,15 @@
 def get_highest_resitance_agg(one_year_aggs):
     max_price = -1
     return_agg  = one_year_aggs[0]
+    flag_found = False
     for agg in one_year_aggs:
         volume = agg.volume
         if volume > 5000000:
             if max_price < agg.high:
                 max_price = agg.high
                 return_agg = agg
+    if flag_found == False:
+        return False
     return return_agg
 
 # # Price open at Resistance Date
@@ -36,10 +39,14 @@ def get_highest_resitance_agg(one_year_aggs):
 
 def get_recent_resitance_agg(one_year_aggs):
     return_agg  = one_year_aggs[0]
+    flag_found = False
     for agg in one_year_aggs:
         volume = agg.volume
         if volume > 5000000:
             return_agg = agg
+            flag_found = True
+    if flag_found == False:
+        return False
     return return_agg
 
 # def get_resitance_date(aggs):
@@ -73,7 +80,7 @@ def get_highest_resitance_params(one_year_aggs):
         volume = agg.volume
         if volume > 5000000:
             if max_volume < agg.volume:
-                max_volume = agg.volume
+                max_volume = volume
             if max_high < agg.high:
                 max_high = agg.high
             if max_low < agg.low:

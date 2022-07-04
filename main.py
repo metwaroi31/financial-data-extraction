@@ -7,7 +7,7 @@ from basic_service import get_low_after_entry_agg, get_open_price, get_close_pri
                         get_volumes_after_premarket, get_high_of_day, get_low_of_day, \
                             get_high_time, get_low_time, get_premarket_value, get_volume_of_day, \
                                 get_previous_close_high, get_previous_close_low, get_previous_close_volume, \
-                                    get_weekday_string, get_premarket_volume
+                                    get_weekday_string, get_premarket_volume, get_low_after_premarket
 
 from resistance_service import get_highest_resitance_agg, get_recent_resitance_agg, get_highest_resitance_params, \
                             get_combined_resitance
@@ -17,7 +17,7 @@ data = read_file_csv("./input.csv")
 output_df = {
     "datetime" : [],
     "ticker" : [],
-    # "entry" : [],
+    "entry" : [],
     "low_after_entry" : [],
     "low_time_after_entry" : [],
     "previous_close_high" : [],
@@ -116,7 +116,7 @@ for index, row in data.iterrows():
     previous_close_agg = get_previous_close_agg(**params_previous)
     output_df['datetime'].append(datetime_input)
     output_df['ticker'].append(ticker_input)
-    # output_df['entry'].append(entry_input)
+    output_df['entry'].append(entry_input)
     # for agg in aggs :
     #     print (str(convert_time_zone(convert_timestamp_to_datetime(agg.timestamp / 1000), 'US/Eastern'))) 
 
@@ -139,24 +139,48 @@ for index, row in data.iterrows():
     premarket_volume = get_premarket_volume(aggs)
 
     # resistance
+    date_format = "%m/%d/%Y"
     highest_resistance_agg = get_highest_resitance_agg(one_year_aggs)
-    highest_resistance_date = str(convert_timestamp_to_datetime(highest_resistance_agg.timestamp / 1000))
-    highest_resistance_high_of_day = highest_resistance_agg.high
-    highest_resistance_low_of_day = highest_resistance_agg.low
-    highest_resistance_open_of_day = highest_resistance_agg.open
-    highest_resistance_close_of_day = highest_resistance_agg.close
-    highest_resistance_volume_of_day = highest_resistance_agg.volume
-    highest_resistance_vwap_of_day = highest_resistance_agg.vwap
-    recent_resistance_agg = get_recent_resitance_agg(one_year_aggs)
-    recent_resistance_date = str(convert_timestamp_to_datetime(recent_resistance_agg.timestamp / 1000))
-    recent_resistance_high_of_day = recent_resistance_agg.high
-    recent_resistance_low_of_day = recent_resistance_agg.low
-    recent_resistance_open_of_day = recent_resistance_agg.open
-    recent_resistance_close_of_day = recent_resistance_agg.close
-    recent_resistance_volume_of_day = recent_resistance_agg.volume
-    recent_resistance_vwap_of_day = recent_resistance_agg.vwap
+    if highest_resistance_agg:
+        highest_resistance_date = convert_time_zone((convert_timestamp_to_datetime(highest_resistance_agg.timestamp / 1000)), 'US/Eastern')
+        highest_resistance_date = strptime(highest_resistance_date, date_format)
+        highest_resistance_high_of_day = highest_resistance_agg.high
+        highest_resistance_low_of_day = highest_resistance_agg.low
+        highest_resistance_open_of_day = highest_resistance_agg.open
+        highest_resistance_close_of_day = highest_resistance_agg.close
+        highest_resistance_volume_of_day = highest_resistance_agg.volume
+        highest_resistance_vwap_of_day = highest_resistance_agg.vwap
+        recent_resistance_agg = get_recent_resitance_agg(one_year_aggs)
+    else :
+        highest_resistance_date = -1
+        highest_resistance_high_of_day = -1
+        highest_resistance_low_of_day = -1
+        highest_resistance_open_of_day = -1
+        highest_resistance_close_of_day = -1
+        highest_resistance_volume_of_day = -1
+        highest_resistance_vwap_of_day = -1
+        recent_resistance_agg = -1
+
+    if recent_resistance_agg:
+        recent_resistance_date = convert_time_zone((convert_timestamp_to_datetime(recent_resistance_agg.timestamp / 1000)), 'US/Eastern')
+        recent_resistance_date = strptime(recent_resistance_date, date_format)
+        recent_resistance_high_of_day = recent_resistance_agg.high
+        recent_resistance_low_of_day = recent_resistance_agg.low
+        recent_resistance_open_of_day = recent_resistance_agg.open
+        recent_resistance_close_of_day = recent_resistance_agg.close
+        recent_resistance_volume_of_day = recent_resistance_agg.volume
+        recent_resistance_vwap_of_day = recent_resistance_agg.vwap
+    else :
+        recent_resistance_date = -1
+        recent_resistance_high_of_day = -1
+        recent_resistance_low_of_day = -1
+        recent_resistance_open_of_day = -1
+        recent_resistance_close_of_day = -1
+        recent_resistance_volume_of_day = -1
+        recent_resistance_vwap_of_day = -1
     max_volume_resistance, max_high_resistance, max_low_resistance, max_open_resistance, max_close_resistance, max_vwap_resistance = get_highest_resitance_params(one_year_aggs)
     resitance_count, resitance_volume_sum = get_combined_resitance(one_year_aggs)
+    premarket_low_after_high = get_low_after_premarket(aggs)
 
     output_df['low_after_entry'].append(entry_agg[0])
     output_df['low_time_after_entry'].append(entry_agg[1])
@@ -174,7 +198,7 @@ for index, row in data.iterrows():
     output_df['premarket_volume'].append(premarket_volume)
     output_df['premarket_high'].append(premarket_volume)
 
-    # output_df['premarket_low_after_high'].append(after_premarket_volumes[0])
+    output_df['premarket_low_after_high'].append(premarket_low_after_high)
     output_df['volume_at_931'].append(after_premarket_volumes[0][0])
     output_df['volume_at_933'].append(after_premarket_volumes[1][0])
     output_df['volume_at_935'].append(after_premarket_volumes[2][0])
@@ -191,6 +215,7 @@ for index, row in data.iterrows():
     output_df['highest_resistance_volume'].append(highest_resistance_volume_of_day)
     output_df['highest_resistance_vwap'].append(highest_resistance_vwap_of_day)
     # Wrong output
+    # if resitance_count != 0:
     output_df['recent_resistance_date'].append(recent_resistance_date)
     output_df['recent_resistance_price_open'].append(recent_resistance_open_of_day)
     output_df['recent_resistance_price_close'].append(recent_resistance_close_of_day)
@@ -208,4 +233,5 @@ for index, row in data.iterrows():
     output_df['highest_vwap_resistance'].append(max_vwap_resistance)
     output_df['day_of_the_week'].append(day_of_week)
 
+print (output_df)
 write_file_csv(output_df, './output.csv')
