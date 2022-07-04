@@ -1,11 +1,15 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import pandas as pd
+import pytz
 
 def convert_datetime_to_timestamp(datetime_string, input_format):
       return datetime.strptime(datetime_string, input_format).timestamp()
 
 def convert_timestamp_to_datetime(timestamp):
       return datetime.fromtimestamp(timestamp)
+# convert string to datetime
+def strptime_timestamp(datetime_string, input_format):
+      return datetime.strptime(datetime_string, input_format)
 
 def add_time(timestamp, days=0, hours=0, minutes=0, seconds=0):
       datetime_object = convert_timestamp_to_datetime(timestamp)
@@ -24,3 +28,7 @@ def read_file_csv(file_path):
 
 def get_day_of_week(datetime_input):
       return datetime_input.weekday()
+
+def convert_time_zone(datetime_to_convert, target_timzone):
+      target_timzone_to_convert = pytz.timezone(target_timzone)
+      return datetime_to_convert.astimezone(target_timzone_to_convert)

@@ -1,11 +1,13 @@
 # from polygon import RESTClient
 from util import convert_datetime_to_timestamp, convert_timestamp_to_datetime, \
-                    read_file_csv, write_file_csv, get_day_of_week, add_time
+                    read_file_csv, write_file_csv, get_day_of_week, add_time, convert_time_zone, \
+                        strptime_timestamp
 from polygon_client import get_aggs_stock, get_daily_open_close, get_previous_close_agg
 from basic_service import get_low_after_entry_agg, get_open_price, get_close_price, \
                         get_volumes_after_premarket, get_high_of_day, get_low_of_day, \
-                            get_high_time, get_low_time, get_premarket_volume, get_volume_of_day, \
-                                get_previous_close_high, get_previous_close_low, get_previous_close_volume, get_weekday_string
+                            get_high_time, get_low_time, get_premarket_value, get_volume_of_day, \
+                                get_previous_close_high, get_previous_close_low, get_previous_close_volume, \
+                                    get_weekday_string, get_premarket_volume
 
 from resistance_service import get_highest_resitance_agg, get_recent_resitance_agg, get_highest_resitance_params, \
                             get_combined_resitance
@@ -28,9 +30,9 @@ output_df = {
     "volume_of_day" : [],
     "high_time" : [],
     "low_time" : [],
-    # "premarket_volume" : [],
+    "premarket_volume" : [],
     "premarket_high" : [],
-    # "premarket_low_after_high" : [],
+    "premarket_low_after_high" : [],
     "volume_at_931" : [],
     "volume_at_933" : [],
     "volume_at_935" : [],
@@ -74,16 +76,18 @@ for index, row in data.iterrows():
     entry_input = row[2]
     
     # timestamp processing
+    # format datetime to process input
     input_format = "%H:%M:%S %m/%d/%Y"
+    input_datetime = strptime_timestamp(datetime_input, input_format)
     timestamp = convert_datetime_to_timestamp(datetime_input, input_format)
     date_to_process = convert_timestamp_to_datetime(timestamp)
     date = str(date_to_process).split(' ')[0]
-
+    # one year timestamp for resistance
     datetime_one_year = add_time(timestamp, days=-365)
-    # datetime_one_year = convert_timestamp_to_datetime(one_year_timestamp)
-    # date_to_process_one_year = convert_timestamp_to_datetime(one_year_timestamp)
     datetime_one_year = str(datetime_one_year).split(' ')[0]
-    print (datetime_input, datetime_one_year)
+    # exclude the day from input
+    datetime_yesterday = add_time(timestamp, days=-1)
+    datetime_yesterday = str(datetime_yesterday).split(' ')[0]
     params = {
         "ticker" : ticker_input,
         "multiplier" : 1,
@@ -96,7 +100,7 @@ for index, row in data.iterrows():
         "multiplier" : 1,
         "timespan" : "day",
         "from_time" : datetime_one_year,
-        "to_time" : date
+        "to_time" : datetime_yesterday
     }
     params_daily = {
         "ticker" : ticker_input,
@@ -105,6 +109,7 @@ for index, row in data.iterrows():
     params_previous = {
         "ticker" : ticker_input
     }
+    # calling polygon API
     aggs = get_aggs_stock(**params)
     one_year_aggs = get_aggs_stock(**params_one_year)
     daily_agg = get_daily_open_close(**params_daily)
@@ -112,9 +117,11 @@ for index, row in data.iterrows():
     output_df['datetime'].append(datetime_input)
     output_df['ticker'].append(ticker_input)
     # output_df['entry'].append(entry_input)
-    
+    # for agg in aggs :
+    #     print (str(convert_time_zone(convert_timestamp_to_datetime(agg.timestamp / 1000), 'US/Eastern'))) 
+
     # Basic service
-    entry_agg = get_low_after_entry_agg(aggs, timestamp)
+    entry_agg = get_low_after_entry_agg(aggs, input_datetime)
     open_price = get_open_price(daily_agg)
     close_price = get_close_price(daily_agg)
     previous_close_high = get_previous_close_high(previous_close_agg[0])
@@ -125,10 +132,11 @@ for index, row in data.iterrows():
     volume_of_day = get_volume_of_day(daily_agg)
     high_time = get_high_time(aggs, daily_agg)
     low_time = get_low_time(aggs, daily_agg)
-    after_premarket_volumes = get_volumes_after_premarket(aggs, daily_agg)
-    premarket_volume = get_premarket_volume(daily_agg)
+    after_premarket_volumes = get_volumes_after_premarket(aggs)
+    premarket_volume = get_premarket_value(daily_agg)
     day_of_week = get_day_of_week(date_to_process)
     day_of_week = get_weekday_string(day_of_week)
+    premarket_volume = get_premarket_volume(aggs)
 
     # resistance
     highest_resistance_agg = get_highest_resitance_agg(one_year_aggs)
@@ -162,7 +170,8 @@ for index, row in data.iterrows():
     output_df['high_time'].append(low_of_day)
     output_df['low_time'].append(low_of_day)
     output_df['volume_of_day'].append(volume_of_day)
-    # output_df['premarket_volume'].append(premarket_volume)
+    # Missing output
+    output_df['premarket_volume'].append(premarket_volume)
     output_df['premarket_high'].append(premarket_volume)
 
     # output_df['premarket_low_after_high'].append(after_premarket_volumes[0])
@@ -181,6 +190,7 @@ for index, row in data.iterrows():
     output_df['highest_resistance_low_of_day'].append(highest_resistance_low_of_day)
     output_df['highest_resistance_volume'].append(highest_resistance_volume_of_day)
     output_df['highest_resistance_vwap'].append(highest_resistance_vwap_of_day)
+    # Wrong output
     output_df['recent_resistance_date'].append(recent_resistance_date)
     output_df['recent_resistance_price_open'].append(recent_resistance_open_of_day)
     output_df['recent_resistance_price_close'].append(recent_resistance_close_of_day)
