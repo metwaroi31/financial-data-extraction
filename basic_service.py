@@ -4,9 +4,8 @@ from util import get_day_of_week, convert_timestamp_to_datetime, convert_time_zo
 # get low agg after 
 def get_low_after_entry_agg(aggs, entry_datetime):
     smallest_price = 9999999999
-    return_time  = 0
+    return_date  = 0
     processing_format = "%Y-%m-%d %H:%M:%S%z"
-    output_time_format = "%H:%M:%S%"
     for agg in aggs:
         low_price_of_agg = agg.low
         date_to_process = str(convert_time_zone(convert_timestamp_to_datetime(agg.timestamp / 1000), 'US/Eastern'))
@@ -15,11 +14,10 @@ def get_low_after_entry_agg(aggs, entry_datetime):
         # from open to close time respect to EST
         if low_price_of_agg < smallest_price and entry_datetime.hour < date_to_process.hour and entry_datetime.minute < date_to_process.minute:
             smallest_price = low_price_of_agg
-
-            return_time = strptime(date_to_process, output_time_format)
+            return_date = date_to_process
     if smallest_price == 9999999999:
         return -1, -1
-    return smallest_price, str(return_time)
+    return smallest_price, return_date
 
 # if miss values at any time then setting default values
 # def set_missing_values_after_premarket(after_premarket_volumes):
@@ -121,32 +119,31 @@ def get_low_of_day(daily_agg):
 
 def get_high_time(aggs, daily_agg):
     high_of_day_string = str(get_high_of_day(daily_agg))
-    output_time_format = "%H:%M:%S%"
-    time_to_process = -1
+    processing_format = "%Y-%m-%d %H:%M:%S%z"
+    return_timestamp = -1
     for agg in aggs:
         high_of_agg_string = str(agg.high)
         if high_of_day_string == high_of_agg_string:
-            time_to_process = str(convert_time_zone(convert_timestamp_to_datetime(agg.timestamp / 1000), 'US/Eastern'))
-            time_to_process = strptime_timestamp(str(time_to_process), output_time_format)
-            
-            return time_to_process
-    return time_to_process
+            date_to_process = str(convert_time_zone(convert_timestamp_to_datetime(agg.timestamp / 1000), 'US/Eastern'))
+            date_to_process = strptime_timestamp(str(date_to_process), processing_format)
+            return date_to_process
+    return return_timestamp
 
 def get_low_time(aggs, daily_agg):
     high_of_day_string = str(get_low_of_day(daily_agg))
-    output_time_format = "%H:%M:%S%"
-    time_to_process = -1
+    processing_format = "%Y-%m-%d %H:%M:%S%z"
+    return_timestamp = -1
     for agg in aggs:
         high_of_agg_string = str(agg.low)
         if high_of_day_string == high_of_agg_string:
-            time_to_process = str(convert_time_zone(convert_timestamp_to_datetime(agg.timestamp / 1000), 'US/Eastern'))
-            time_to_process = strptime_timestamp(str(time_to_process), output_time_format)
-            
-            return time_to_process
-    return time_to_process
+            date_to_process = str(convert_time_zone(convert_timestamp_to_datetime(agg.timestamp / 1000), 'US/Eastern'))
+            date_to_process = strptime_timestamp(str(date_to_process), processing_format)
+            return date_to_process
+    return return_timestamp
 
 def get_premarket_volume(aggs):
     processing_format = "%Y-%m-%d %H:%M:%S%z"
+    output_time_format = "%H:%M:%S%"
 
     for agg in aggs:
         date_to_process = str(convert_time_zone(convert_timestamp_to_datetime(agg.timestamp / 1000), 'US/Eastern'))

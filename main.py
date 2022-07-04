@@ -130,8 +130,8 @@ for index, row in data.iterrows():
     high_of_day = get_high_of_day(daily_agg)
     low_of_day = get_low_of_day(daily_agg)
     volume_of_day = get_volume_of_day(daily_agg)
-    high_time = get_high_time(aggs, daily_agg)
-    low_time = get_low_time(aggs, daily_agg)
+    high_time = str(get_high_time(aggs, daily_agg)).split(" ")[1]
+    low_time = str(get_low_time(aggs, daily_agg)).split(" ")[1]
     after_premarket_volumes = get_volumes_after_premarket(aggs)
     premarket_volume = get_premarket_value(daily_agg)
     day_of_week = get_day_of_week(date_to_process)
@@ -139,18 +139,17 @@ for index, row in data.iterrows():
     premarket_volume = get_premarket_volume(aggs)
 
     # resistance
-    date_format = "%m/%d/%Y"
     highest_resistance_agg = get_highest_resitance_agg(one_year_aggs)
+    recent_resistance_agg = get_recent_resitance_agg(one_year_aggs)
+
     if highest_resistance_agg:
-        highest_resistance_date = convert_time_zone((convert_timestamp_to_datetime(highest_resistance_agg.timestamp / 1000)), 'US/Eastern')
-        highest_resistance_date = strptime(highest_resistance_date, date_format)
+        highest_resistance_date = str(convert_time_zone((convert_timestamp_to_datetime(highest_resistance_agg.timestamp / 1000)), 'US/Eastern')).split(" ")[0]
         highest_resistance_high_of_day = highest_resistance_agg.high
         highest_resistance_low_of_day = highest_resistance_agg.low
         highest_resistance_open_of_day = highest_resistance_agg.open
         highest_resistance_close_of_day = highest_resistance_agg.close
         highest_resistance_volume_of_day = highest_resistance_agg.volume
         highest_resistance_vwap_of_day = highest_resistance_agg.vwap
-        recent_resistance_agg = get_recent_resitance_agg(one_year_aggs)
     else :
         highest_resistance_date = -1
         highest_resistance_high_of_day = -1
@@ -159,11 +158,9 @@ for index, row in data.iterrows():
         highest_resistance_close_of_day = -1
         highest_resistance_volume_of_day = -1
         highest_resistance_vwap_of_day = -1
-        recent_resistance_agg = -1
 
     if recent_resistance_agg:
-        recent_resistance_date = convert_time_zone((convert_timestamp_to_datetime(recent_resistance_agg.timestamp / 1000)), 'US/Eastern')
-        recent_resistance_date = strptime(recent_resistance_date, date_format)
+        recent_resistance_date = str(convert_time_zone((convert_timestamp_to_datetime(recent_resistance_agg.timestamp / 1000)), 'US/Eastern')).split(" ")[0]
         recent_resistance_high_of_day = recent_resistance_agg.high
         recent_resistance_low_of_day = recent_resistance_agg.low
         recent_resistance_open_of_day = recent_resistance_agg.open
@@ -183,7 +180,10 @@ for index, row in data.iterrows():
     premarket_low_after_high = get_low_after_premarket(aggs)
 
     output_df['low_after_entry'].append(entry_agg[0])
-    output_df['low_time_after_entry'].append(entry_agg[1])
+    if entry_agg[1] != -1:
+        output_df['low_time_after_entry'].append(str(entry_agg[1]).split(" ")[1])
+    else :
+        output_df['low_time_after_entry'].append(-1)
     output_df['open_price'].append(open_price)
     output_df['close_price'].append(close_price)
     output_df['previous_close_high'].append(previous_close_high)
